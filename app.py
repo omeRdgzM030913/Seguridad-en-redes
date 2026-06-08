@@ -1,15 +1,6 @@
 """
-Proyecto Integrador — Módulo 5: Simulación con Streamlit
-=========================================================
 Interfaz web para interactuar con el simulador de blockchain.
 
-Secciones:
-  🏠 Inicio        — resumen general del sistema
-  👤 Usuarios      — crear wallets y ver claves
-  💸 Transacciones — enviar monedas entre usuarios
-  ⛏️ Minería       — minar bloques con PoW
-  🔗 Blockchain    — visualizar la cadena completa
-  💰 Balances      — saldos y UTXOs actuales
 """
 
 import streamlit as st
@@ -22,36 +13,80 @@ from blockchain import (
     GENESIS_COINS,
 )
 
-# ─────────────────────────────────────────────────────────────
-# Configuración de la página
-# ─────────────────────────────────────────────────────────────
+
 st.set_page_config(
-    page_title="BlockSim — Simulador de Blockchain",
-    page_icon="⛓️",
+    page_title="Simulador de Blockchain",
+    page_icon="⛓️🤑🪙",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ─────────────────────────────────────────────────────────────
-# CSS personalizado (estilo limpio)
+# CSS personalizado 
 # ─────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    .metric-card {
-        background: #f0f2f6;
-        border-radius: 10px;
+
+    .stApp {
+        background-color: #0a0a0a;
+        color: #00ff00;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    
+
+    [data-testid="stSidebar"] {
+        background-color: #111111;
+        border-right: 2px solid #003300;
+    }
+
+
+    h1, h2, h3 {
+        color: #00ff00 !important;
+        text-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+    }
+
+ 
+    div[data-testid="metric-container"] {
+        background-color: #050505;
+        border: 1px solid #00ff00;
+        border-radius: 0px;
         padding: 15px;
-        text-align: center;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
     }
-    .block-card {
-        border-left: 4px solid #1f77b4;
-        padding-left: 10px;
-        margin-bottom: 8px;
+    [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+        color: #00ff00 !important;
     }
-    .hash-text {
-        font-family: monospace;
-        font-size: 0.85em;
-        color: #555;
+
+   
+    .stButton > button {
+        background-color: #000000;
+        color: #00ff00;
+        border: 1px solid #00ff00;
+        border-radius: 0px;
+        font-family: 'Courier New', Courier, monospace;
+        text-transform: uppercase;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    .stButton > button:hover {
+        background-color: #00ff00;
+        color: #000000;
+        box-shadow: 0 0 15px #00ff00;
+        border-color: #00ff00;
+    }
+
+  
+    code {
+        color: #00ff00 !important;
+        background-color: #001a00 !important;
+        border: 1px solid #004400;
+    }
+    
+    
+    .stAlert {
+        background-color: #001100;
+        border-left-color: #00ff00;
+        color: #00ff00;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -77,8 +112,8 @@ bc: Blockchain = st.session_state.bc
 # ─────────────────────────────────────────────────────────────
 # Sidebar — Navegación
 # ─────────────────────────────────────────────────────────────
-st.sidebar.title("⛓️ BlockSim")
-st.sidebar.caption("Simulador de Blockchain · Proyecto Integrador")
+st.sidebar.title("⛓️🤑🪙 Simulador de Blockchain")
+st.sidebar.caption("Proyecto Integrador")
 st.sidebar.markdown("---")
 st.sidebar.markdown(
     f"**Configuración PoW**  \n"
@@ -102,7 +137,7 @@ section = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 st.sidebar.info(
-    "💡 **Flujo básico:**  \n"
+    " **Flujo básico:**  \n"
     "1. Crea usuarios (wallets)  \n"
     "2. Crea transacciones  \n"
     "3. Mina un bloque  \n"
@@ -179,7 +214,7 @@ elif section == "👤 Usuarios":
     # ── Formulario de creación ────────────────────────────────
     st.markdown("### ➕ Crear nueva wallet")
     with st.form("form_create_wallet", clear_on_submit=True):
-        name      = st.text_input("Nombre del usuario", placeholder="Ej. Alice, Bob, Miner…")
+        name      = st.text_input("Nombre del usuario", placeholder="Ej. Luis, pedro, Omar…")
         submitted = st.form_submit_button("🆕 Generar Wallet")
 
     if submitted:
@@ -319,6 +354,8 @@ elif section == "💸 Transacciones":
             try:
                 tx = bc.build_transaction(sender_w, recip_addr, amount, fee)
                 bc.submit(tx)
+                st.toast(f"Transacción {tx.txid[:8]}... agregada al pool", icon="💸")
+                
                 st.success(f"✅ Transacción creada y agregada al pool.  \n"
                            f"**TXID:** `{tx.txid}`")
                 with st.expander("📄 Ver detalle de la transacción"):
@@ -394,12 +431,19 @@ elif section == "⛏️ Minería":
     st.markdown("---")
 
     if st.button("⛏️ Minar Bloque Ahora", type="primary"):
+      
+        st.toast("Iniciando algoritmo de Prueba de Trabajo (PoW)...", icon="⏳")
+      
         with st.spinner(
             f"Ejecutando Prueba de Trabajo (buscando hash con {DIFFICULTY} ceros)… "
             "Esto puede tardar unos segundos."
         ):
             try:
                 blk, elapsed = bc.mine_pending(miner_w)
+
+                st.balloons()
+                st.toast("¡Bloque minado con éxito!", icon="🤑✔️")
+              
                 st.success(
                     f"✅ **¡Bloque #{blk.index} minado!**  \n"
                     f"⏱️ Tiempo: **{elapsed:.2f}s**  \n"
