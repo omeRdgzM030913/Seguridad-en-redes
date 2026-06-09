@@ -441,8 +441,6 @@ elif section == "⛏️ Minería":
             try:
                 blk, elapsed = bc.mine_pending(miner_w)
 
-                st.balloons()
-                st.toast("¡Bloque minado con éxito!", icon="🤑✔️")
               
                 st.success(
                     f"✅ **¡Bloque #{blk.index} minado!**  \n"
